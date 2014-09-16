@@ -18,6 +18,7 @@ All existing unit tests passed along with some newly added test cases.
 
 Here is the utility I used to generate token and verify the token.
 
+```
 public class JwtUtil {
     final static String ISSUER = "example.com";
     final static String SIGNING_KEY = "09003938249038094884";
@@ -83,3 +84,4 @@ public class JwtUtil {
         return parser.verifyAndDeserialize(jwt);
     }
 }
+```
