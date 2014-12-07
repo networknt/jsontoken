@@ -12,11 +12,12 @@ What I have done:
 1. Convert from Joda time to Java 8 time. So it requires Java 8.
 2. Covert Json parser from Gson to Jackson as I don't want to include two Json parsers to my projects.
 3. Remove google collections from dependency list as it is stopped long time ago.
+4. Fix thread safe issue with Java Mac.doFinal call.
 
 All existing unit tests passed along with some newly added test cases.
 
 
-Here is the utility I used to generate token and verify the token.
+Here is a sample to generate token and verify the token. For more information, please check https://github.com/networknt/light source code for usage.
 
 ```
 public class JwtUtil {
