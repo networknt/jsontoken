@@ -60,7 +60,7 @@ public class HmacSHA256Signer extends AbstractSigner {
    * @see net.oauth.jsontoken.crypto.Signer#sign(byte[])
    */
   @Override
-  public byte[] sign(byte[] source) {
+  public synchronized byte[] sign(byte[] source) {
     try {
       hmac.init(signingKey);
     } catch (InvalidKeyException e) {
