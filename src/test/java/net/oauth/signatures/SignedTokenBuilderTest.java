@@ -20,6 +20,8 @@ import net.oauth.jsontoken.JsonTokenTestBase;
 import net.oauth.jsontoken.crypto.RsaSHA256Signer;
 import net.oauth.jsontoken.crypto.Signer;
 
+import org.joda.time.Instant;
+
 public class SignedTokenBuilderTest extends JsonTokenTestBase {
 
   public void testSignature() throws Exception {

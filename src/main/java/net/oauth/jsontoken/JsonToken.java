@@ -1,3 +1,19 @@
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package net.oauth.jsontoken;
 
 import net.oauth.jsontoken.crypto.AsciiStringSigner;
@@ -6,7 +22,7 @@ import net.oauth.jsontoken.crypto.Signer;
 import org.apache.commons.codec.binary.Base64;
 
 import java.security.SignatureException;
-import java.time.Instant;
+import org.joda.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -164,12 +180,12 @@ public class JsonToken {
         if (issuedAt == null) {
             return null;
         }
-        // JWT represents time in seconds
-        return Instant.ofEpochSecond(issuedAt);
+	    // JWT represents time in seconds, Instants expect milliseconds
+    	return new Instant(issuedAt * 1000);
     }
 
     public void setIssuedAt(Instant instant) {
-        setParam(JsonToken.ISSUED_AT, instant.getEpochSecond());
+	    setParam(JsonToken.ISSUED_AT, instant.getMillis() / 1000);
     }
 
     public Instant getExpiration() {
@@ -177,12 +193,12 @@ public class JsonToken {
         if (expiration == null) {
             return null;
         }
-        // JWT represents time in seconds
-        return Instant.ofEpochSecond(expiration);
+        // JWT represents time in seconds, Instants expect milliseconds
+        return new Instant(expiration * 1000);
     }
 
     public void setExpiration(Instant instant) {
-        setParam(JsonToken.EXPIRATION, instant.getEpochSecond());
+	    setParam(JsonToken.EXPIRATION, instant.getMillis() / 1000);
     }
 
     public String getAudience() {

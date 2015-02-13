@@ -1,3 +1,19 @@
+/**
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package net.oauth.jsontoken;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,7 +24,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import com.fasterxml.jackson.core.JsonParseException;
 import java.security.SignatureException;
-import java.time.Instant;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -17,7 +34,8 @@ import java.util.regex.Pattern;
  * Created by steve on 12/09/14.
  */
 public class JsonTokenTest extends JsonTokenTestBase {
-    private static final int SKEW_IN_MIN = 1;
+
+  private static final Duration SKEW = Duration.standardMinutes(1);
 
     public static String TOKEN_STRING = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtleTIifQ.eyJpc3MiOiJnb29nbGUuY29tIiwiYmFyIjoxNSwiZm9vIjoic29tZSB2YWx1ZSIsImF1ZCI6Imh0dHA6Ly93d3cuZ29vZ2xlLmNvbSIsImlhdCI6MTI3NjY2OTcyMiwiZXhwIjoxMjc2NjY5NzIyfQ.jKcuP6BR_-cKpQv2XdFLguYgOxw4ahkZiqjcgrQcm70";
     public static String TOKEN_STRING_ISSUER_NULL = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtleTIifQ.eyJpc3MiOm51bGwsImJhciI6MTUsImZvbyI6InNvbWUgdmFsdWUiLCJhdWQiOiJodHRwOi8vd3d3Lmdvb2dsZS5jb20iLCJpYXQiOjEyNzY2Njk3MjIsImV4cCI6MTI3NjY2OTcyMn0.jKcuP6BR_-cKpQv2XdFLguYgOxw4ahkZiqjcgrQcm70";
@@ -26,12 +44,12 @@ public class JsonTokenTest extends JsonTokenTestBase {
     public static String TOKEN_STRING_EMPTY_SIG = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtleTIifQ.eyJpc3MiOiJnb29nbGUuY29tIiwiYmFyIjoxNSwiZm9vIjoic29tZSB2YWx1ZSIsImF1ZCI6Imh0dHA6Ly93d3cuZ29vZ2xlLmNvbSIsImlhdCI6MTI3NjY2OTcyMiwiZXhwIjoxMjc2NjY5NzIyfQ.";
     public static String TOKEN_STRING_CORRUPT_HEADER = "0yJ0bGci0iJIUzI0NiIsIm0pZCI60mtleT0ifQ.eyJpc3MiOiJnb29nbGUuY29tIiwiYmFyIjoxNSwiZm9vIjoic29tZSB2YWx1ZSIsImF1ZCI6Imh0dHA6Ly93d3cuZ29vZ2xlLmNvbSIsImlhdCI6MTI3NjY2OTcyMiwiZXhwIjoxMjc2NjY5NzIyfQ.jKcuP6BR_-cKpQv2XdFLguYgOxw4ahkZiqjcgrQcm70";
     public static String TOKEN_STRING_CORRUPT_PAYLOAD = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtleTIifQ.eyJpc3&&&&&XtOiJnb290bGUuY20tIiwiYmFyIjoxNSwiZm9vIjoic290ZSB2YWx1ZSIsImF1ZCI6Imh0dHA6Ly93d3cuZ29vZ2xlLmNvbSIsImlhdCI6MTI3NjY2OTcyMiwiZXhwIjoxMjc2NjY5NzIyfQ.jKcuP6BR_-cKpQv2XdFLguYgOxw4ahkZiqjcgrQcm70";
-    public FakeClock clock = new FakeClock(SKEW_IN_MIN);
+  public FakeClock clock = new FakeClock(SKEW);
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        clock.setNow(Instant.ofEpochMilli(1276669722000L));
+	    clock.setNow(new Instant(1276669722000L));
     }
 
     public void testDeserialize() throws Exception {
@@ -51,7 +69,7 @@ public class JsonTokenTest extends JsonTokenTestBase {
         token.setParam("foo", "some value");
         token.setAudience("http://www.google.com");
         token.setIssuedAt(clock.now());
-        token.setExpiration(clock.now().plusMillis(60));
+	    token.setExpiration(clock.now().withDurationAdded(60, 1));
 
         assertEquals(TOKEN_STRING, token.serializeAndSign());
     }
@@ -85,40 +103,40 @@ public class JsonTokenTest extends JsonTokenTestBase {
 
     public void testIssuedAtAfterExpiration() throws Exception {
         Instant issuedAt = clock.now();
-        Instant expiration = issuedAt.minusSeconds(1);
+	    Instant expiration = issuedAt.minus(Duration.standardSeconds(1));
         checkTimeFrameIllegalStateException(issuedAt, expiration);
     }
 
     public void testIssueAtSkew() throws Exception {
-        Instant issuedAt = clock.now().plusSeconds(SKEW_IN_MIN * 60 -1);
-        Instant expiration = issuedAt.plusSeconds(1);
+    	Instant issuedAt = clock.now().plus(SKEW.minus(Duration.standardSeconds(1)));
+    	Instant expiration = issuedAt.plus(Duration.standardSeconds(1));
         checkTimeFrame(issuedAt, expiration);
     }
     public void testIssueAtTooMuchSkew() throws Exception {
-        Instant issuedAt = clock.now().plusSeconds(SKEW_IN_MIN * 60 + 1);
-        Instant expiration = issuedAt.plusSeconds(1);
+ 	    Instant issuedAt = clock.now().plus(SKEW.plus(Duration.standardSeconds(1)));
+   	 	Instant expiration = issuedAt.plus(Duration.standardSeconds(1));
         checkTimeFrameIllegalStateException(issuedAt, expiration);
     }
 
     public void testExpirationSkew() throws Exception {
-        Instant expiration = clock.now().minusSeconds(SKEW_IN_MIN * 60 -1);
-        Instant issuedAt = expiration.minusSeconds(1);
+	    Instant expiration = clock.now().minus(SKEW.minus(Duration.standardSeconds(1)));
+	    Instant issuedAt = expiration.minus(Duration.standardSeconds(1));
         checkTimeFrame(issuedAt, expiration);
     }
 
     public void testExpirationTooMuchSkew() throws Exception {
-        Instant expiration = clock.now().minusSeconds(SKEW_IN_MIN * 60 + 1);
-        Instant issuedAt = expiration.minusSeconds(1);
+	    Instant expiration = clock.now().minus(SKEW.plus(Duration.standardSeconds(1)));
+	    Instant issuedAt = expiration.minus(Duration.standardSeconds(1));
         checkTimeFrameIllegalStateException(issuedAt, expiration);
     }
 
     public void testIssuedAtNull() throws Exception {
-        Instant expiration = clock.now().minusSeconds(SKEW_IN_MIN * 60 - 1);
+	    Instant expiration = clock.now().minus(SKEW.minus(Duration.standardSeconds(1)));
         checkTimeFrame(null, expiration);
     }
 
     public void testExpirationNull() throws Exception {
-        Instant issuedAt = clock.now().plusSeconds(SKEW_IN_MIN * 60 - 1);
+	    Instant issuedAt = clock.now().plus(SKEW.minus(Duration.standardSeconds(1)));
         checkTimeFrame(issuedAt, null);
     }
 
@@ -127,14 +145,14 @@ public class JsonTokenTest extends JsonTokenTestBase {
     }
 
     public void testFutureToken() throws Exception {
-        Instant issuedAt = clock.now().plusSeconds(SKEW_IN_MIN * 60 + 1);
-        Instant expiration = issuedAt.plusSeconds(24 * 60 * 60);
+    Instant issuedAt = clock.now().plus(SKEW.plus(Duration.standardSeconds(1)));
+    Instant expiration = issuedAt.plus(Duration.standardDays(1));
         checkTimeFrameIllegalStateException(issuedAt, expiration);
     }
 
     public void testPastToken() throws Exception {
-        Instant expiration = clock.now().minusSeconds(SKEW_IN_MIN * 60 + 1);
-        Instant issuedAt = expiration.minusSeconds(24 * 60 * 60);
+    Instant expiration = clock.now().minus(SKEW.plus(Duration.standardSeconds(1)));
+    Instant issuedAt = expiration.minus(Duration.standardDays(1));
         checkTimeFrameIllegalStateException(issuedAt, expiration);
     }
 
@@ -211,7 +229,7 @@ public class JsonTokenTest extends JsonTokenTestBase {
         JsonToken token = new JsonToken(signer, clock);
         token.setParam("bar", 15);
         token.setParam("foo", "some value");
-        token.setExpiration(clock.now().plusMillis(60));
+    token.setExpiration(clock.now().withDurationAdded(60, 1));
 
         String tokenString = token.serializeAndSign();
 

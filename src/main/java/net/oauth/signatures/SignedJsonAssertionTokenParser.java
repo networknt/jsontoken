@@ -54,7 +54,7 @@ public class  SignedJsonAssertionTokenParser {
    * @param nonceChecker An optional nonce checker. If not null, then the parser will
    *   call the nonce checker to make sure that the nonce has not been re-used.JsonTokenParser
    * @param clock a clock that has implemented the
-   *   {@link net.oauth.jsontoken.Clock#isCurrentTimeInInterval(java.time.Instant, java.time.Instant)} method
+   *   {@link Clock#isCurrentTimeInInterval(org.joda.time.Instant, org.joda.time.Duration)} method
    *   with a suitable slack to account for clock skew when checking token validity.
    */
   public SignedJsonAssertionTokenParser(VerifierProviders locators, NonceChecker nonceChecker,
