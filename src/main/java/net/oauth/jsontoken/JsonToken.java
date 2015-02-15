@@ -22,7 +22,7 @@ import net.oauth.jsontoken.crypto.Signer;
 import org.apache.commons.codec.binary.Base64;
 
 import java.security.SignatureException;
-import org.joda.time.Instant;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -180,12 +180,12 @@ public class JsonToken {
         if (issuedAt == null) {
             return null;
         }
-	    // JWT represents time in seconds, Instants expect milliseconds
-    	return new Instant(issuedAt * 1000);
+        // JWT represents time in seconds
+        return Instant.ofEpochSecond(issuedAt);
     }
 
     public void setIssuedAt(Instant instant) {
-	    setParam(JsonToken.ISSUED_AT, instant.getMillis() / 1000);
+        setParam(JsonToken.ISSUED_AT, instant.getEpochSecond());
     }
 
     public Instant getExpiration() {
@@ -193,12 +193,12 @@ public class JsonToken {
         if (expiration == null) {
             return null;
         }
-        // JWT represents time in seconds, Instants expect milliseconds
-        return new Instant(expiration * 1000);
+        // JWT represents time in seconds
+        return Instant.ofEpochSecond(expiration);
     }
 
     public void setExpiration(Instant instant) {
-	    setParam(JsonToken.EXPIRATION, instant.getMillis() / 1000);
+        setParam(JsonToken.EXPIRATION, instant.getEpochSecond());
     }
 
     public String getAudience() {

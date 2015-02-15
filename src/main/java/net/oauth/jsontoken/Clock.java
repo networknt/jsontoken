@@ -16,7 +16,7 @@
  */
 package net.oauth.jsontoken;
 
-import org.joda.time.Instant;
+import java.time.Instant;
 
 /**
  * Created by steve on 12/09/14.

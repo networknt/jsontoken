@@ -23,7 +23,6 @@ import java.security.SignatureException;
 import net.oauth.jsontoken.Clock;
 import net.oauth.jsontoken.JsonToken;
 import net.oauth.jsontoken.crypto.Signer;
-import org.joda.time.Duration;
 
 
 /**
@@ -100,7 +99,7 @@ public class SignedJsonAssertionToken extends JsonToken {
       setIssuedAt(clock.now());
     }
     if (getExpiration() == null) {
-      setExpiration(getIssuedAt().plus(Duration.standardMinutes(DEFAULT_LIFETIME_IN_MINS)));
+      setExpiration(getIssuedAt().plusSeconds(DEFAULT_LIFETIME_IN_MINS * 60));
     }
     return super.computeSignatureBaseString();
   }

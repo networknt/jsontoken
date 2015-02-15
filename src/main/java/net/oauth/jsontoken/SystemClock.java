@@ -16,35 +16,31 @@
  */
 package net.oauth.jsontoken;
 
-import org.joda.time.Duration;
-import org.joda.time.Instant;
-import org.joda.time.Interval;
-
+import java.time.Instant;
 
 /**
  * Created by steve on 12/09/14.
  */
 public class SystemClock implements Clock {
+    public static final int DEFAULT_ACCEPTABLE_CLOCK_SKEW_IN_MIN = 2;
 
-    public static final Duration DEFAULT_ACCEPTABLE_CLOCK_SKEW = Duration.standardMinutes(2);
-
-  private final Duration acceptableClockSkew;
+    private final int acceptableClockSkewInMin;
 
     /**
      * Public constructor.
      */
     public SystemClock() {
-        this(DEFAULT_ACCEPTABLE_CLOCK_SKEW);
+        this(DEFAULT_ACCEPTABLE_CLOCK_SKEW_IN_MIN);
     }
 
   /**
    * Public constructor.
-   * @param acceptableClockSkew the current time will be considered inside the
-   *   interval at {@link #isCurrentTimeInInterval(Instant, Duration)} even if the current time
-   *   is up to acceptableClockSkew off the ends of the interval.
+     * @param acceptableClockSkewInMin the current time will be considered inside the
+     *   interval at {@link #isCurrentTimeInInterval(java.time.Instant, java.time.Instant)} even if the current time
+     *   is up to acceptableClockSkewInMin off the ends of the interval.
    */
-  public SystemClock(Duration acceptableClockSkew) {
-    this.acceptableClockSkew = acceptableClockSkew;
+    public SystemClock(int acceptableClockSkewInMin) {
+        this.acceptableClockSkewInMin = acceptableClockSkewInMin;
   }
 
     /*
@@ -53,19 +49,18 @@ public class SystemClock implements Clock {
      */
     @Override
     public Instant now() {
-        return new Instant();
+        return Instant.now();
     }
 
   /**
-   * Determines whether the current time (plus minus the acceptableClockSkew) falls within the
+     * Determines whether the current time (plus minus the acceptableClockSkewInMin) falls within the
    * interval defined by the start and intervalLength parameters.
    */
   @Override
   public boolean isCurrentTimeInInterval(Instant start, Instant end) {
-    Interval interval = new Interval(start, end);
-    Instant now = now();
-    Interval currentTimeWithSkew =
-        new Interval(now.minus(acceptableClockSkew), now.plus(acceptableClockSkew));
-    return interval.overlaps(currentTimeWithSkew);
+        start = start.minusSeconds(acceptableClockSkewInMin*60);
+        end = end.plusSeconds(acceptableClockSkewInMin*60);
+        return now().isAfter(start) && now().isBefore(end);
   }
+
 }

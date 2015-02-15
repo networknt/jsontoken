@@ -16,22 +16,21 @@
  */
 package net.oauth.jsontoken;
 
-import org.joda.time.Duration;
-import org.joda.time.Instant;
 
+import java.time.Instant;
 
 /**
  * Created by steve on 12/09/14.
  */
 public class FakeClock extends SystemClock {
-  private Instant now = new Instant();
+    private Instant now = Instant.now();
 
     public FakeClock() {
-    super(Duration.ZERO);
+        super(0);
     }
 
-  public FakeClock(Duration acceptableClockSkew) {
-    super(acceptableClockSkew);
+    public FakeClock(int acceptableClockSkewInMin) {
+        super(acceptableClockSkewInMin);
   }
 
     public void setNow(Instant i) {

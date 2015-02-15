@@ -23,7 +23,7 @@ import net.oauth.jsontoken.crypto.SignatureAlgorithm;
 import net.oauth.jsontoken.crypto.Verifier;
 import net.oauth.jsontoken.discovery.VerifierProviders;
 import org.apache.commons.codec.binary.Base64;
-import org.joda.time.Instant;
+import java.time.Instant;
 
 import java.security.SignatureException;
 import java.util.LinkedHashMap;
@@ -130,11 +130,11 @@ public class JsonTokenParser {
         Instant expiration = jsonToken.getExpiration();
 
         if (issuedAt == null && expiration != null) {
-		    issuedAt = new Instant(0);
+            issuedAt = Instant.ofEpochMilli(0);
         }
 
         if (issuedAt != null && expiration == null) {
-            expiration = new Instant(Long.MAX_VALUE);
+            expiration = Instant.ofEpochMilli(Long.MAX_VALUE);
         }
 
         if (issuedAt != null && expiration != null) {
