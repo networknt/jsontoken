@@ -23,8 +23,6 @@ import net.oauth.jsontoken.crypto.Verifier;
 import net.oauth.jsontoken.discovery.VerifierProvider;
 import net.oauth.jsontoken.discovery.VerifierProviders;
 import net.oauth.signatures.SignedTokenAudienceChecker;
-import org.joda.time.Duration;
-import org.joda.time.Instant;
 
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
@@ -40,7 +38,6 @@ public class JwtUtil {
     final static String ISSUER = "networknt.com";
     final static String SIGNING_KEY = "1293089278894893893";
     public static String TOKEN_EXPIRED_MESSAGE = "Invalid iat and/or exp.";
-    private static final Duration SKEW = Duration.standardMinutes(2);
 
 
     static VerifierProviders verifierProviders = null;
@@ -94,11 +91,11 @@ public class JwtUtil {
         token.setParam("typ", "networknt.com/auth/v1");
         SystemClock clock = new SystemClock();
 
-        Instant issuedAt = clock.now();
-        Instant expiration = issuedAt.plus(Duration.standardSeconds(1)); // 1 second + 2 minutes
+        //Instant issuedAt = clock.now();
+        //Instant expiration = issuedAt.plus(Duration.standardSeconds(1)); // 1 second + 2 minutes
         //token.setExpiration(Instant.now().plusSeconds(3600));  // 1 hour
         // TODO test only
-        token.setExpiration(expiration);
+        //token.setExpiration(expiration);
 
         Map<String, Object> payload = token.getPayload();
         payload.put("user", userMap);
