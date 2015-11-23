@@ -93,6 +93,7 @@
         <artifactId>jackson-annotations</artifactId>
         <version>2.4.2</version>
     </dependency>
+    <!--
     <dependency>
     	<groupId>org.apache.httpcomponents</groupId>
     	<artifactId>httpcore</artifactId>
@@ -100,5 +101,6 @@
     	<type>jar</type>
     	<scope>compile</scope>
     </dependency>
+    -->
   </dependencies>
 </project>
